@@ -1,0 +1,22 @@
+[Unit]
+Description=One's distributed currency daemon
+After=network.target
+
+[Service]
+User=onecore
+Group=onecore
+
+Type=forking
+PIDFile=/var/lib/oned/oned.pid
+ExecStart=/usr/bin/oned -daemon -pid=/var/lib/oned/oned.pid \
+-conf=/etc/onecore/one.conf -datadir=/var/lib/oned -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

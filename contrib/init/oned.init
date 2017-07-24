@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  oned The One Core server.
+#
+#
+# chkconfig: 345 80 20
+# description: oned
+# processname: oned
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/oned, see below
+if [ -f /etc/sysconfig/oned ]; then
+        . /etc/sysconfig/oned
+fi
+
+RETVAL=0
+
+prog=oned
+# you can override the lockfile via BITCOIND_LOCKFILE in /etc/sysconfig/oned
+lockfile=${BITCOIND_LOCKFILE-/var/lock/subsys/oned}
+
+# oned defaults to /usr/bin/oned, override with BITCOIND_BIN
+oned=${BITCOIND_BIN-/usr/bin/oned}
+
+# oned opts default to -disablewallet, override with BITCOIND_OPTS
+oned_opts=${BITCOIND_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $oned $oned_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
